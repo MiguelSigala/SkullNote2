@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -8,12 +9,19 @@ import HomeScreen from './HomeScreen';
 import Afinador from './Afinador';
 import Metronomo from './Metronomo';
 import Grabadora from './Grabadora';
+import Bibloteca from './Bibloteca';
 import BottomBar from './BottomBar';
+import ScoreEditor from './ScoreEditor';
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+import {
+  RootStackParamList,
+  MainTabParamList,
+} from './navigationTypes';
 
-function MainTabs() {
+const Stack = createNativeStackNavigator<RootStackParamList>();
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+function MainTabs(): React.JSX.Element {
   return (
     <Tab.Navigator
       tabBar={(props) => <BottomBar {...props} />}
@@ -41,11 +49,16 @@ function MainTabs() {
         name="Grabadora"
         component={Grabadora}
       />
+
+      <Tab.Screen
+        name="Bibloteca"
+        component={Bibloteca}
+      />
     </Tab.Navigator>
   );
 }
 
-export default function App() {
+export default function App(): React.JSX.Element {
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -66,6 +79,16 @@ export default function App() {
           name="Main"
           component={MainTabs}
         />
+
+        <Stack.Screen
+          name="ScoreEditor"
+          component={ScoreEditor}
+          options={{
+            animation: 'slide_from_right',
+            gestureEnabled: true,
+          }}
+        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

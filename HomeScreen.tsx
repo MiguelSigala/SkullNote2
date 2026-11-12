@@ -11,11 +11,34 @@ import {
   Image,
 } from 'react-native';
 
-export default function HomeScreen({ navigation }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
+import { useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-  const toggleMenu = () => {
+import type {
+  MainTabParamList,
+  RootStackParamList,
+} from './navigationTypes';
+
+type HomeNavigationProp = BottomTabNavigationProp<
+  MainTabParamList,
+  'Home'
+>;
+
+type StackNavigationProp = NativeStackNavigationProp<
+  RootStackParamList
+>;
+
+export default function HomeScreen(): React.JSX.Element {
+  const navigation = useNavigation<HomeNavigationProp>();
+
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+  const animation = useRef<Animated.Value>(
+    new Animated.Value(0)
+  ).current;
+
+  const toggleMenu = (): void => {
     const toValue = menuOpen ? 0 : 1;
 
     setMenuOpen(!menuOpen);
@@ -28,13 +51,31 @@ export default function HomeScreen({ navigation }) {
     }).start();
   };
 
-  const handleLogout = () => {
-    navigation.replace('Login');
+  const closeMenu = (): void => {
+    setMenuOpen(false);
+
+    Animated.spring(animation, {
+      toValue: 0,
+      friction: 6,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
   };
 
-  const handleCreateOption = (tipo) => {
-    toggleMenu();
-    // Aquí puedes agregar la navegación o creación de proyectos.
+  const handleLogout = (): void => {
+    navigation
+      .getParent<StackNavigationProp>()
+      ?.navigate('Login');
+  };
+
+  const handleCreateOption = (type: string): void => {
+    closeMenu();
+
+    if (type === 'Pentagrama (SCORE)') {
+      navigation
+        .getParent<StackNavigationProp>()
+        ?.navigate('ScoreEditor', undefined);
+    }
   };
 
   const pianoStyle = {
@@ -303,7 +344,7 @@ const styles = StyleSheet.create({
   },
 
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,0.25)',
   },
 

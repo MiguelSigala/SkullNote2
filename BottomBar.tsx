@@ -8,9 +8,28 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  ImageSourcePropType,
+  NativeSyntheticEvent,
 } from 'react-native';
 
-const INITIAL_ICONS = [
+type IconItem = {
+  id: string;
+  image: ImageSourcePropType;
+};
+
+type BottomBarProps = {
+  state: {
+    index: number;
+    routes: Array<{
+      name: string;
+    }>;
+  };
+  navigation: {
+    navigate: (screen: string) => void;
+  };
+};
+
+const INITIAL_ICONS: IconItem[] = [
   { id: 'metronome', image: require('./assets/metronome.png') },
   { id: 'tuner', image: require('./assets/tuner.png') },
   { id: 'menu', image: require('./assets/menu.png') },
@@ -27,7 +46,10 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-export default function BottomBar({ state, navigation }) {
+export default function BottomBar({
+  state,
+  navigation,
+}: BottomBarProps): React.JSX.Element {
   const activeScreen = state.routes[state.index].name;
 
   const activeIconId =
@@ -37,9 +59,11 @@ export default function BottomBar({ state, navigation }) {
         ? 'metronome'
         : activeScreen === 'Grabadora'
           ? 'mic'
-          : 'menu';
+          : activeScreen === 'Bibloteca'
+            ? 'chords'
+            : 'menu';
 
-  const [icons, setIcons] = useState(() => {
+  const [icons, setIcons] = useState<IconItem[]>(() => {
     const updatedIcons = [...INITIAL_ICONS];
     const initialIndex = updatedIcons.findIndex(
       (item) => item.id === activeIconId
@@ -53,7 +77,7 @@ export default function BottomBar({ state, navigation }) {
     return updatedIcons;
   });
 
-  const scales = useRef(
+  const scales = useRef<Record<string, Animated.Value>>(
     Object.fromEntries(
       INITIAL_ICONS.map((item) => [
         item.id,
@@ -62,7 +86,7 @@ export default function BottomBar({ state, navigation }) {
     )
   ).current;
 
-  const animating = useRef(false);
+  const animating = useRef<boolean>(false);
 
   useEffect(() => {
     const currentIndex = icons.findIndex(
@@ -102,13 +126,14 @@ export default function BottomBar({ state, navigation }) {
     });
   }, [activeIconId]);
 
-  const selectIcon = (id) => {
+  const selectIcon = (id: string): void => {
     if (animating.current) return;
 
-    const screenMap = {
+    const screenMap: Record<string, string> = {
       menu: 'Home',
       tuner: 'Afinador',
       metronome: 'Metronomo',
+      chords: 'Bibloteca',
       mic: 'Grabadora',
     };
 

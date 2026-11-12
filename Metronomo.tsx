@@ -14,10 +14,17 @@ import {
 } from 'react-native';
 import { useAudioPlayer, setAudioModeAsync } from 'expo-audio';
 
-const MIN_BPM = 1;
-const MAX_BPM = 999;
+const MIN_BPM: number = 1;
+const MAX_BPM: number = 999;
 
-const TIME_SIGNATURES = [
+type TimeSignature = {
+  label: string;
+  beats: number;
+};
+
+type MenuType = 'tempo' | 'signature' | null;
+
+const TIME_SIGNATURES: TimeSignature[] = [
   { label: '2/4', beats: 2 },
   { label: '2/2', beats: 2 },
   { label: '3/4', beats: 3 },
@@ -30,33 +37,33 @@ const TIME_SIGNATURES = [
   { label: '7/8', beats: 7 },
 ];
 
-const getDefaultAccents = (beats) =>
+const getDefaultAccents = (beats: number): number[] =>
   Array.from({ length: beats }, (_, index) =>
     index === 0 ? 2 : 0
   );
 
-export default function Metronomo() {
+export default function Metronomo(): React.JSX.Element {
   const { width, height } = useWindowDimensions();
 
   const tickPlayer = useAudioPlayer(require('./assets/tick.wav'));
   const accentPlayer = useAudioPlayer(require('./assets/accent.wav'));
 
-    tickPlayer.volume = 5.0;
-    accentPlayer.volume = 5.0;
+  tickPlayer.volume = 5.0;
+  accentPlayer.volume = 5.0;
 
-  const [bpm, setBpm] = useState(120);
-  const [bpmInput, setBpmInput] = useState('120');
-  const [active, setActive] = useState(false);
-  const [beat, setBeat] = useState(0);
-  const [vibrationEnabled, setVibrationEnabled] = useState(true);
-  const [signature, setSignature] = useState('4/4');
-  const [accentLevels, setAccentLevels] = useState(
+  const [bpm, setBpm] = useState<number>(120);
+  const [bpmInput, setBpmInput] = useState<string>('120');
+  const [active, setActive] = useState<boolean>(false);
+  const [beat, setBeat] = useState<number>(0);
+  const [vibrationEnabled, setVibrationEnabled] = useState<boolean>(true);
+  const [signature, setSignature] = useState<string>('4/4');
+  const [accentLevels, setAccentLevels] = useState<number[]>(
     getDefaultAccents(4)
   );
-  const [openMenu, setOpenMenu] = useState(null);
+  const [openMenu, setOpenMenu] = useState<MenuType>(null);
 
-  const beatRef = useRef(0);
-  const activeRef = useRef(false);
+  const beatRef = useRef<number>(0);
+  const activeRef = useRef<boolean>(false);
 
   const selectedSignature =
     TIME_SIGNATURES.find((item) => item.label === signature) ||
@@ -91,7 +98,7 @@ export default function Metronomo() {
     }).catch(() => {});
   }, []);
 
-  const playBeatSound = (accent) => {
+  const playBeatSound = (accent: number): void => {
     const player = accent > 0 ? accentPlayer : tickPlayer;
 
     player.seekTo(0)
@@ -101,7 +108,7 @@ export default function Metronomo() {
       .catch(() => {});
   };
 
-  const playNextBeat = () => {
+  const playNextBeat = (): void => {
     const nextBeat = (beatRef.current % beatCount) + 1;
 
     beatRef.current = nextBeat;
@@ -118,7 +125,7 @@ export default function Metronomo() {
     }
   };
 
-  const changeBpm = (value) => {
+  const changeBpm = (value: number): void => {
     const nextBpm = Math.max(
       MIN_BPM,
       Math.min(MAX_BPM, Math.round(value))
@@ -128,7 +135,7 @@ export default function Metronomo() {
     setBpmInput(String(nextBpm));
   };
 
-  const commitBpm = () => {
+  const commitBpm = (): void => {
     const parsed = Number.parseInt(bpmInput, 10);
 
     if (Number.isFinite(parsed) && bpmInput.trim() !== '') {
@@ -140,7 +147,7 @@ export default function Metronomo() {
     Keyboard.dismiss();
   };
 
-  const stopMetronome = () => {
+  const stopMetronome = (): void => {
     activeRef.current = false;
     setActive(false);
     beatRef.current = 0;
@@ -148,14 +155,14 @@ export default function Metronomo() {
     Vibration.cancel();
   };
 
-  const changeSignature = (item) => {
+  const changeSignature = (item: TimeSignature): void => {
     stopMetronome();
     setSignature(item.label);
     setAccentLevels(getDefaultAccents(item.beats));
     setOpenMenu(null);
   };
 
-  const toggleAccent = (index) => {
+  const toggleAccent = (index: number): void => {
     setAccentLevels((previous) =>
       previous.map((level, i) =>
         i === index ? (level + 1) % 3 : level
@@ -163,7 +170,7 @@ export default function Metronomo() {
     );
   };
 
-  const toggleMetronome = () => {
+  const toggleMetronome = (): void => {
     Keyboard.dismiss();
 
     if (activeRef.current) {
@@ -197,28 +204,25 @@ export default function Metronomo() {
     };
   }, []);
 
-  const accentColor = (level) => {
+  const accentColor = (level: number): string => {
     if (level === 2) return '#bc6c25';
     if (level === 1) return '#606c38';
     return '#fefae0';
   };
 
-  const openTempoMenu = () => {
+  const openTempoMenu = (): void => {
     setBpmInput(String(bpm));
     setOpenMenu('tempo');
   };
 
-  const closeMenu = () => {
+  const closeMenu = (): void => {
     Keyboard.dismiss();
     setOpenMenu(null);
   };
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        backgroundColor="#eadeab"
-        barStyle="dark-content"
-      />
+      <StatusBar barStyle="dark-content" />
 
       <View style={styles.screen}>
         <View style={styles.settingsRow}>
@@ -401,7 +405,7 @@ export default function Metronomo() {
                   <TextInput
                     style={styles.tempoInput}
                     value={bpmInput}
-                    onChangeText={(value) =>
+                    onChangeText={(value: string) =>
                       setBpmInput(value.replace(/[^0-9]/g, ''))
                     }
                     keyboardType="number-pad"

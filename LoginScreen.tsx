@@ -1,22 +1,39 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { 
-  StyleSheet, 
+import {
+  StyleSheet,
   Text,
-  View, 
-  TextInput, 
-  TouchableOpacity, 
+  View,
+  TextInput,
+  TouchableOpacity,
   Alert,
-  Image 
+  Image,
 } from 'react-native';
 
-export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-  const handleLogin = () => {
+type RootStackParamList = {
+  Login: undefined;
+  Main: undefined;
+};
+
+type LoginScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  'Login'
+>;
+
+export default function LoginScreen({
+  navigation,
+}: LoginScreenProps): React.JSX.Element {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+
+  const handleLogin = (): void => {
     if (!email || !password) {
-      Alert.alert('Error', 'Por favor ingresa correo y contraseña');
+      Alert.alert(
+        'Error',
+        'Por favor ingresa correo y contraseña'
+      );
       return;
     }
 
@@ -27,14 +44,16 @@ export default function LoginScreen({ navigation }) {
     <View style={styles.container}>
       <Text style={styles.title}>SkullNote</Text>
 
-      <Image 
-        source={require('./assets/icon.png')} 
-        style={styles.icon} 
+      <Image
+        source={require('./assets/icon.png')}
+        style={styles.icon}
         resizeMode="contain"
       />
-      
+
       <Text style={styles.subtitle}>
-        "La música empieza donde terminan las palabras" {"\n"}{"\n"}-Claude Debussy.
+        "La música empieza donde terminan las palabras" {'\n'}
+        {'\n'}
+        -Claude Debussy.
       </Text>
 
       <View style={styles.inputContainer}>
@@ -57,7 +76,10 @@ export default function LoginScreen({ navigation }) {
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+        >
           <Text style={styles.buttonText}>Iniciar Sesión</Text>
         </TouchableOpacity>
       </View>
@@ -75,30 +97,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
+
   icon: {
     width: 180,
-    height: 180, 
+    height: 180,
     marginBottom: 8,
     tintColor: '#606c38',
   },
-  title: { 
-    fontSize: 32, 
-    color: '#283618', 
+
+  title: {
+    fontSize: 32,
+    color: '#283618',
     fontWeight: 'bold',
-    marginBottom: 8 
+    marginBottom: 8,
   },
-  subtitle: { 
-    fontSize: 15, 
-    color: '#606c38', 
+
+  subtitle: {
+    fontSize: 15,
+    color: '#606c38',
     fontStyle: 'italic',
-    marginBottom: 32, 
+    marginBottom: 32,
     textAlign: 'center',
-    width: '100%'  
+    width: '100%',
   },
-  inputContainer: { 
-    width: '100%', 
-    maxWidth: 400 
+
+  inputContainer: {
+    width: '100%',
+    maxWidth: 400,
   },
+
   input: {
     backgroundColor: '#89a071',
     color: '#283618',
@@ -108,6 +135,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     fontSize: 16,
   },
+
   button: {
     backgroundColor: '#606c38',
     height: 50,
@@ -116,9 +144,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
   },
-  buttonText: { 
+
+  buttonText: {
     color: '#fefae0',
-    fontSize: 16, 
-    fontWeight: 'bold' 
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

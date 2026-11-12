@@ -17,6 +17,14 @@ import {
   requestRecordingPermissionsAsync,
 } from 'expo-audio';
 
+type NoteFormat = 'latin' | 'american';
+
+type AudioStreamBuffer = Parameters<
+  NonNullable<
+    NonNullable<Parameters<typeof useAudioStream>[0]>['onBuffer']
+  >
+>[0];
+
 const LATIN_NOTES = [
   'Do', 'Do#', 'Re', 'Re#', 'Mi', 'Fa',
   'Fa#', 'Sol', 'Sol#', 'La', 'La#', 'Si',
@@ -27,7 +35,7 @@ const AMERICAN_NOTES = [
   'F#', 'G', 'G#', 'A', 'A#', 'B',
 ];
 
-function detectFrequency(samples, sampleRate) {
+function detectFrequency(samples: Float32Array, sampleRate: number): number {
   const sampleCount = samples.length;
 
   if (sampleCount < 1024) return 0;
@@ -81,18 +89,18 @@ function detectFrequency(samples, sampleRate) {
 }
 
 export default function Afinador() {
-  const [active, setActive] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [note, setNote] = useState('--');
-  const [frequency, setFrequency] = useState(0);
-  const [cents, setCents] = useState(0);
-  const [message, setMessage] = useState('');
-  const [noteFormat, setNoteFormat] = useState('latin');
+  const [active, setActive] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [note, setNote] = useState<string>('--');
+  const [frequency, setFrequency] = useState<number>(0);
+  const [cents, setCents] = useState<number>(0);
+  const [message, setMessage] = useState<string>('');
+  const [noteFormat, setNoteFormat] = useState<NoteFormat>('latin');
 
-  const activeRef = useRef(false);
-  const processingRef = useRef(false);
+  const activeRef = useRef<boolean>(false);
+  const processingRef = useRef<boolean>(false);
 
-  const processAudio = useCallback((buffer) => {
+  const processAudio = useCallback((buffer: AudioStreamBuffer): void => {
     if (!activeRef.current || processingRef.current) return;
 
     processingRef.current = true;
@@ -147,7 +155,7 @@ export default function Afinador() {
     onBuffer: processAudio,
   });
 
-  const startTuner = async () => {
+  const startTuner = async (): Promise<void> => {
     if (activeRef.current || loading) return;
 
     setLoading(true);
@@ -180,7 +188,7 @@ export default function Afinador() {
     }
   };
 
-  const stopTuner = async () => {
+  const stopTuner = async (): Promise<void> => {
     activeRef.current = false;
     setActive(false);
 
@@ -205,7 +213,7 @@ export default function Afinador() {
 
   const position = Math.max(-1, Math.min(1, cents / 50));
 
-  const selectFormat = (format) => {
+  const selectFormat = (format: NoteFormat): void => {
     setNoteFormat(format);
   };
 
@@ -281,7 +289,7 @@ export default function Afinador() {
           style={[
             styles.needle,
             {
-              left: `${50 + position * 50}%`,
+              left: `${50 + position * 50}%` as `${number}%`,
               backgroundColor:
                 frequency > 0 && Math.abs(cents) <= 5
                   ? '#2d8a45'
